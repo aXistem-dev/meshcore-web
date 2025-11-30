@@ -18,6 +18,10 @@ This is the web version of the MeshCore Companion App, built with Flutter. It al
 - View network topology and node information
 - Real-time mesh network interaction
 
+## Browser Requirements
+
+Chrome/Edge (desktop or Android) via HTTPS or localhost access required for functionality.
+
 ## Original Files
 
 Original app files are available at [https://files.liamcottle.net/MeshCore](https://files.liamcottle.net/MeshCore), including:
@@ -29,10 +33,6 @@ Original app files are available at [https://files.liamcottle.net/MeshCore](http
 ## Updating from Source
 
 Run `./update-from-source.sh` to automatically check for new versions, download the latest web build, and update the repository.
-
-## Browser Requirements
-
-Chrome/Edge (desktop or Android) via HTTPS or localhost access required for functionality.
 
 ## Docker Deployment
 
