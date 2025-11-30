@@ -1,0 +1,121 @@
+name: Build and Publish Docker Image
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Allows manual triggering from GitHub Actions UI
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/meshcore-web
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version from README and check if newer
+        id: version_check
+        run: |
+          # Extract version from README.md
+          VERSION=$(grep -oE 'Current version: \*\*v[0-9]+\.[0-9]+\.[0-9]+\*\*' README.md 2>/dev/null | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "")
+
+          if [ -z "$VERSION" ]; then
+              echo "No version found in README.md"
+              echo "should_build=false" >> $GITHUB_OUTPUT
+              exit 0
+          fi
+
+          echo "Current version in README: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+          # Get version number without 'v' prefix for comparison
+          VERSION_NUM=${VERSION#v}
+
+          # Get all existing image tags from GHCR (using GitHub API)
+          # We'll check if this version is newer than any existing tags
+          LATEST_EXISTING=""
+
+          # Try to get package versions from GitHub API
+          OWNER="${{ github.repository_owner }}"
+          PACKAGE_NAME="meshcore-web"
+
+          # Fetch package versions (this requires the package to exist, but we'll handle gracefully)
+          EXISTING_TAGS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/users/${OWNER}/packages/container/${PACKAGE_NAME}/versions" 2>/dev/null | \
+            grep -oE '"name":"v[0-9]+\.[0-9]+\.[0-9]+"' | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' || echo "")
+
+          if [ -z "$EXISTING_TAGS" ]; then
+              # No existing tags found, this is the first build
+              echo "No existing tags found - this will be the first build"
+              echo "should_build=true" >> $GITHUB_OUTPUT
+          else
+              # Find the latest existing version
+              for tag in $EXISTING_TAGS; do
+                  TAG_NUM=${tag#v}
+                  if [ -z "$LATEST_EXISTING" ] || [ "$(printf '%s\n' "$TAG_NUM" "$LATEST_EXISTING" | sort -V | tail -1)" = "$TAG_NUM" ]; then
+                      LATEST_EXISTING=$TAG_NUM
+                  fi
+              done
+              
+              echo "Latest existing version: v${LATEST_EXISTING}"
+              
+              # Compare versions
+              if [ "$(printf '%s\n' "$VERSION_NUM" "$LATEST_EXISTING" | sort -V | tail -1)" = "$VERSION_NUM" ] && [ "$VERSION_NUM" != "$LATEST_EXISTING" ]; then
+                  echo "Version $VERSION is newer than existing v${LATEST_EXISTING} - will build"
+                  echo "should_build=true" >> $GITHUB_OUTPUT
+              else
+                  echo "Version $VERSION is not newer than existing v${LATEST_EXISTING} - skipping build"
+                  echo "should_build=false" >> $GITHUB_OUTPUT
+              fi
+          fi
+
+      - name: Prepare image name (lowercase)
+        id: image_name
+        run: |
+          IMAGE_NAME_LOWER=$(echo "${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')
+          echo "image_name=$IMAGE_NAME_LOWER" >> $GITHUB_OUTPUT
+
+      - name: Prepare tags
+        id: tags
+        if: steps.version_check.outputs.should_build == 'true'
+        run: |
+          VERSION="${{ steps.version_check.outputs.version }}"
+          TAGS="${{ env.REGISTRY }}/${{ steps.image_name.outputs.image_name }}:latest"
+          TAGS="$TAGS"$'\n'"${{ env.REGISTRY }}/${{ steps.image_name.outputs.image_name }}:${VERSION}"
+
+          echo "tags<<EOF" >> $GITHUB_OUTPUT
+          echo "$TAGS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "Tags to build:"
+          echo "$TAGS"
+
+      - name: Build and push Docker image
+        if: steps.version_check.outputs.should_build == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.tags.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
