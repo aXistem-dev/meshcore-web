@@ -7,7 +7,7 @@
 README.md
 *.md
 
-# Build artifacts (if any)
+# Build artifacts
 .last_build_id
 
 # IDE files
@@ -21,8 +21,7 @@ README.md
 .DS_Store
 Thumbs.db
 
-# Docker files (don't copy into image)
+# Docker files
 Dockerfile
 .dockerignore
 docker-compose.yml
-

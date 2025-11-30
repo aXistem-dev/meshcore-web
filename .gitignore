@@ -1,0 +1,17 @@
+# Scripts
+update-from-source-and-push.sh
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+.last_build_id
+
