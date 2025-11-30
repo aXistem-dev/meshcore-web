@@ -1,0 +1,14 @@
+services:
+  meshcore-web:
+    image: ghcr.io/axistem-dev/meshcore-web:latest
+    container_name: meshcore-web
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
