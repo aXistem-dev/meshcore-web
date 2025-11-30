@@ -140,15 +140,16 @@ save_consistent_files() {
         fi
     done
     
-    # Save GitHub workflows directory if it exists
+    # Save GitHub workflows directory (especially docker-publish.yml)
     if [ -d ".github/workflows" ]; then
-        print_info "  Saving .github/workflows..."
-        cp -r ".github/workflows" "${temp_dir}/consistent_files/" 2>/dev/null || true
+        print_info "  Saving .github/workflows (including docker-publish.yml)..."
+        mkdir -p "${temp_dir}/consistent_files/.github/workflows"
+        cp -r ".github/workflows"/* "${temp_dir}/consistent_files/.github/workflows/" 2>/dev/null || true
     elif git ls-tree -r --name-only main | grep -q "^\.github/workflows/"; then
         print_info "  Saving .github/workflows from main branch..."
         mkdir -p "${temp_dir}/consistent_files/.github/workflows"
         git checkout main -- .github/workflows/ 2>/dev/null || true
-        cp -r ".github/workflows" "${temp_dir}/consistent_files/" 2>/dev/null || true
+        cp -r ".github/workflows"/* "${temp_dir}/consistent_files/.github/workflows/" 2>/dev/null || true
         git checkout - 2>/dev/null || true  # Restore previous branch
     fi
 }
@@ -157,16 +158,18 @@ save_consistent_files() {
 restore_consistent_files() {
     local temp_dir=$1
     
-    print_info "Restoring consistent files (Docker, scripts, README)..."
+    print_info "Restoring consistent files (Docker, scripts, README, workflows)..."
     
     if [ ! -d "${temp_dir}/consistent_files" ]; then
         print_warn "No consistent files to restore"
         return 0
     fi
     
-    # Restore all saved files
+    # Restore all saved files (excluding .github directory for now)
     if [ -d "${temp_dir}/consistent_files" ]; then
-        cp -r "${temp_dir}/consistent_files"/* . 2>/dev/null || true
+        # Copy files but exclude .github directory
+        find "${temp_dir}/consistent_files" -mindepth 1 -maxdepth 1 ! -name '.github' -exec cp -r {} . 2>/dev/null \; || true
+        
         # Handle .github/workflows specially
         if [ -d "${temp_dir}/consistent_files/.github/workflows" ]; then
             mkdir -p ".github/workflows"
@@ -244,7 +247,7 @@ update_repository() {
     # Stage all changes
     git add -A
     
-    # Commit changes
+    # Commit changes with a single commit message
     print_info "Committing changes to ${version} branch..."
     git commit -m "Update to ${version} from source files"
     
@@ -254,40 +257,18 @@ update_repository() {
     
     print_info "Successfully created and pushed ${version} branch!"
     
-    # Now update main branch with the same version
-    print_info "Updating main branch with version ${version}..."
+    # Now update main branch by merging the version branch (this keeps them in sync)
+    print_info "Updating main branch by merging ${version} branch..."
     git checkout main || { print_error "Failed to checkout main branch"; return 1; }
     
-    # Save consistent files again (they should be in the version branch now)
-    save_consistent_files "${consistent_files_dir}"
+    # Reset main to exactly match the version branch (this avoids the "1 ahead, 1 behind" issue)
+    # This ensures main and version branch have the exact same commit history and content
+    print_info "Resetting main to match ${version} branch exactly..."
+    git reset --hard "${version}" || { print_error "Failed to reset main to ${version}"; return 1; }
     
-    # Remove all existing files except .git and .github
-    print_info "Cleaning main branch (keeping .git and .github)..."
-    find . -mindepth 1 -maxdepth 1 \
-        ! -name '.git' \
-        ! -name '.github' \
-        -exec rm -rf {} +
-    
-    # Copy new files from extracted zip
-    print_info "Copying new files to main branch..."
-    cp -r "${source_dir}"/* .
-    
-    # Restore consistent files
-    restore_consistent_files "${consistent_files_dir}"
-    
-    # Update version in README.md
-    update_readme_version "${version}"
-    
-    # Stage all changes
-    git add -A
-    
-    # Commit changes to main
-    print_info "Committing changes to main branch..."
-    git commit -m "Update main branch to ${version} from source files"
-    
-    # Push main branch
-    print_info "Pushing to origin/main..."
-    git push origin main || { print_error "Failed to push to origin/main"; return 1; }
+    # Push main branch (force push needed since we reset)
+    print_info "Pushing to origin/main (force push required)..."
+    git push origin main --force-with-lease || { print_error "Failed to push to origin/main"; return 1; }
     
     print_info "Successfully updated main branch to ${version}!"
 }
