@@ -1,5 +1,9 @@
 # MeshCore Web App
 
+<div align="center">
+  <img src="logo.svg" alt="MeshCore Logo" width="200">
+</div>
+
 The MeshCore Companion App - a web-based interface for connecting to and managing MeshCore Companion LoRa devices.
 
 ### Version
