@@ -1,3 +1,16 @@
+## v1.35.0 - 09/December/2025
+- added support for standalone altitude in telemetry response
+- added button to send channel message again if no repeats heard
+- added ability to see last heard for rf map and discover map markers
+- added dropdown menu button to remote management settings tab to reset path
+- added new contact settings checkbox to show/hide public key in contacts list
+- wifi connection history is now saved to allow quick connecting to previous devices
+- trace map now auto hides non-selected repeaters when running trace
+- leading and trailing whitespace is now removed when saving node names and creating channels
+- fixed bug where outbound snr value in discover nearby nodes tool would show 54+ SNR
+- fixed bug where deleting channel message history would still show last message timestamp
+- fixed bug where message date divider would not show if first message of new day is unseen
+
 ## v1.34.0 - 16/November/2025
 - added button to qr code scanner screen to pick from existing photos
 - added dropdown menu button to copy path on view path screen
