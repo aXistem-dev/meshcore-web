@@ -8,7 +8,7 @@ The MeshCore Companion App - a web-based interface for connecting to and managin
 
 ### Version
 
-Current version: [**v1.34.0**](https://files.liamcottle.net/MeshCore/v1.34.0/MeshCore-v1.34.0+58-8ff274c-web.zip) ([build 58](./version.json))
+Current version: [**v1.35.0**](https://files.liamcottle.net/MeshCore/v1.35.0/MeshCore-v1.35.0+59-94ee4c4-web.zip) ([build 59](./version.json))
 
 ## About
 
