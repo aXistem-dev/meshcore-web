@@ -35,8 +35,8 @@ jobs:
       - name: Extract version from README and check if newer
         id: version_check
         run: |
-          # Extract version from README.md
-          VERSION=$(grep -oE 'Current version: \*\*v[0-9]+\.[0-9]+\.[0-9]+\*\*' README.md 2>/dev/null | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "")
+          # Extract version from README.md (accounting for markdown link format)
+          VERSION=$(grep -oE 'Current version: \[?\*\*v[0-9]+\.[0-9]+\.[0-9]+\*\*\]?' README.md 2>/dev/null | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "")
 
           if [ -z "$VERSION" ]; then
               echo "No version found in README.md"
