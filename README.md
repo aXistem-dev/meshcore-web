@@ -38,6 +38,37 @@ Original app files are available at [https://files.liamcottle.net/MeshCore](http
 
 Run `./update-from-source.sh` to automatically check for new versions, download the latest web build, and update the repository.
 
+### Manual Update Workflow
+
+When updating to a new version manually:
+
+1. **Download the new version** from the [MeshCore releases](https://files.liamcottle.net/MeshCore) (e.g., `MeshCore-v1.36.0+60-c6748b6-web.zip`)
+
+2. **Extract and replace files** in the repository:
+   - Extract the zip file
+   - Copy all files from the `web/` directory to the repository root
+
+3. **Verify changes** by checking unstaged files:
+   ```bash
+   git status
+   git diff
+   ```
+
+4. **Update README.md** with the new version:
+   - Update the version number and build number in the "Current version" line
+   - Update the download link URL to match the new version
+
+5. **Stage and commit** all changes:
+   ```bash
+   git add -A
+   git commit -m "Update to v1.XX.X (build XX)"
+   ```
+
+6. **Verify the commit** includes all necessary files:
+   ```bash
+   git log -1 --stat
+   ```
+
 ## Docker Deployment
 
 Docker configuration to run the MeshCore webapp in a container using nginx on a lightweight Alpine Linux base image.
