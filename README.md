@@ -36,7 +36,12 @@ Original app files are available at [https://files.liamcottle.net/MeshCore](http
 
 ## Updating from Source
 
-Run `./update-from-source.sh` to automatically check for new versions, download the latest web build, and update the repository.
+### Automated Update Scripts
+
+- **`./update-from-source.sh`** - Downloads and updates files locally only (does not update README.md or commit changes)
+- **`./update-from-source-and-push.sh`** - Complete automated workflow: downloads, updates README.md, commits, and pushes to this repository
+
+For manual updates, see the Manual Update Workflow section below.
 
 ### Manual Update Workflow
 

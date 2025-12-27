@@ -7,6 +7,10 @@
 # 1. Checks version.json for current version
 # 2. Checks the server for the latest version
 # 3. If newer version exists, downloads and extracts it to the local directory
+# 
+# NOTE: This script only updates files locally. It does NOT:
+# - Update README.md with the new version
+# - Stage or commit changes
 
 set -uo pipefail
 
