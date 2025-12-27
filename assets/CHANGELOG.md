@@ -1,3 +1,14 @@
+## v1.36.0 - 27/December/2025
+- added ability to order channels alphabetically or by most recent messages
+- added confirmation dialog with information about sharing position in adverts
+- added ability to scroll to top of contacts/channels list by tapping the same tab a second time
+- added new messages setting to show/hide hop count under channel messages
+- added new messages setting to mark outgoing messages delivered faster
+- app can now mark messages delivered before an ack has passed through all intended repeaters
+- app is now able to minimize itself instead of terminating when pressing back button on android
+- contact position is now updated if telemetry response has gps data
+- fixed bug where auto reconnecting to companion would go back a screen
+
 ## v1.35.0 - 09/December/2025
 - added support for standalone altitude in telemetry response
 - added button to send channel message again if no repeats heard
