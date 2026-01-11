@@ -1,3 +1,24 @@
+## v1.37.0 - 04/January/2026
+- added ble, usb and wifi tabs to connect screen
+- added initial support for usb connections on android
+- added initial support for standalone linux builds with wifi/tcp connections
+- added ability to forget a contacts position from details screen
+- added ability to quick remove added contact by clicking the tick in discover list
+- added checkbox to discover menu to show/hide already added contacts
+- channel syncing performance greatly improved with new experimental setting
+- multiple simultaneous channel sync operations are now prevented with a mutex
+- reduced duration of copied to clipboard popup from 5 seconds to 2 seconds
+- added support for more telemetry types:
+  - LPP_ANALOG_INPUT
+  - LPP_ANALOG_OUTPUT
+  - LPP_DIGITAL_INPUT
+  - LPP_DIGITAL_OUTPUT
+  - LPP_DIRECTION
+  - LPP_DISTANCE
+  - LPP_ENERGY
+  - LPP_SWITCH
+  - LPP_UNIXTIME
+
 ## v1.36.0 - 27/December/2025
 - added ability to order channels alphabetically or by most recent messages
 - added confirmation dialog with information about sharing position in adverts
