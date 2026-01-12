@@ -7,9 +7,9 @@
 # 1. Checks version.json for current version
 # 2. Checks the server for the latest version
 # 3. If newer version exists, downloads and extracts it to the local directory
+# 4. Updates README.md with the new version
 # 
 # NOTE: This script only updates files locally. It does NOT:
-# - Update README.md with the new version
 # - Stage or commit changes
 
 set -uo pipefail
@@ -17,6 +17,7 @@ set -uo pipefail
 BASE_URL="https://files.liamcottle.net/MeshCore"
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMP_DIR="/tmp/meshcore-web-update"
+ZIP_FILENAME=""  # Global variable to store the zip filename
 
 # Colors for output
 RED='\033[0;31m'
@@ -71,6 +72,9 @@ download_and_extract() {
         return 1
     fi
     
+    # Store zip filename in global variable
+    ZIP_FILENAME="$zip_file"
+    
     local zip_url="${version_url}${zip_file}"
     print_info "Found zip file: ${zip_file}"
     print_info "Downloading from ${zip_url}..."
@@ -106,6 +110,128 @@ download_and_extract() {
         ls -la extracted/ 2>/dev/null || true >&2
         return 1
     fi
+}
+
+# Function to update README.md with version
+update_readme_version() {
+    local version=$1
+    local zip_file=$2
+    
+    if [ ! -f "README.md" ]; then
+        print_warn "README.md not found, skipping version update"
+        return 0
+    fi
+    
+    print_info "Updating version in README.md to ${version}..."
+    
+    # Get build number from version.json if available
+    local build_number=""
+    if [ -f "version.json" ]; then
+        build_number=$(grep -oE '"build_number":\s*"[0-9]+"' version.json 2>/dev/null | grep -oE '[0-9]+' | head -1)
+    fi
+    
+    # Construct the URL
+    local zip_url="https://files.liamcottle.net/MeshCore/${version}/${zip_file}"
+    
+    # Use a temporary file for cross-platform compatibility (works on both GNU and BSD sed)
+    local temp_file=$(mktemp)
+    
+    # Update version line (handles both old and new formats)
+    # New format: Current version: [**vX.Y.Z**](url) ([build N](./version.json))
+    # Old format: Current version: **vX.Y.Z**
+    if grep -q "Current version:" README.md; then
+        # Try new format first (with link)
+        if grep -q "Current version: \[**v" README.md; then
+            # Replace version and URL: [**vX.Y.Z**](old_url) -> [**vX.Y.Z**](new_url)
+            # Use a more robust pattern that works with both GNU and BSD sed
+            # Pattern: [**vX.Y.Z**](url) where X.Y.Z is version number
+            # We'll do this in two steps for better reliability:
+            # 1. Replace the version number
+            # 2. Replace the URL
+            
+            # Step 1: Replace version number in [**vX.Y.Z**]
+            if command -v gsed >/dev/null 2>&1; then
+                # Use GNU sed if available (gsed on macOS)
+                gsed "s|\[\\*\\*v[0-9]\\+\\.[0-9]\\+\\.[0-9]\\+\\*\\*\]|[**${version}**]|g" README.md > "$temp_file"
+            else
+                # Use standard sed with extended regex (works on both GNU and BSD sed with -E)
+                # With -E: * needs escaping, + doesn't, . needs escaping
+                sed -E "s|\[\\*\\*v[0-9]+\.[0-9]+\.[0-9]+\\*\\*\]|[**${version}**]|g" README.md > "$temp_file"
+            fi
+            
+            # Step 2: Replace the URL part (everything between parentheses after the version)
+            if command -v gsed >/dev/null 2>&1; then
+                gsed -i "s|(\\(https://files\\.liamcottle\\.net/MeshCore/v[0-9]\\+\\.[0-9]\\+\\.[0-9]\\+/[^)]*\\))|(${zip_url})|g" "$temp_file"
+            else
+                # For BSD sed, we need to use a temp file approach
+                sed -E "s|(\\(https://files\\.liamcottle\\.net/MeshCore/v[0-9]+\\.[0-9]+\\.[0-9]+/[^)]*\\))|(${zip_url})|g" "$temp_file" > "${temp_file}.url" && mv "${temp_file}.url" "$temp_file"
+            fi
+            
+            # Verify the replacement worked
+            if ! grep -q "\[\\*\\*${version}\\*\\*\]" "$temp_file"; then
+                print_error "Failed to update version in README.md - pattern may not have matched"
+                print_info "Current version line in README.md:"
+                grep "Current version:" README.md || true
+                print_info "Attempting alternative simpler pattern..."
+                # Try a simpler pattern as fallback - replace the whole line
+                local old_line=$(grep "Current version:" README.md)
+                local new_line="Current version: [**${version}**](${zip_url})"
+                if [ -n "$build_number" ]; then
+                    new_line="${new_line} ([build ${build_number}](./version.json))"
+                else
+                    # Try to preserve existing build number format if present
+                    if echo "$old_line" | grep -q "build"; then
+                        local existing_build=$(echo "$old_line" | grep -oE '\[build [0-9]+\]' || echo "")
+                        if [ -n "$existing_build" ]; then
+                            new_line="${new_line} (${existing_build}(./version.json))"
+                        fi
+                    fi
+                fi
+                sed "s|.*Current version:.*|${new_line}|" README.md > "$temp_file"
+            fi
+            
+            # If build number is available, update it too
+            if [ -n "$build_number" ]; then
+                if command -v gsed >/dev/null 2>&1; then
+                    gsed -i.bak "s|(\[build [0-9]\\+\](\./version\.json))|([build ${build_number}](./version.json))|g" "$temp_file" 2>/dev/null
+                else
+                    sed -i.bak -E "s|(\[build )[0-9]+(\](\./version\.json))|\1${build_number}\2|g" "$temp_file" 2>/dev/null || \
+                    sed -E "s|(\[build )[0-9]+(\](\./version\.json))|\1${build_number}\2|g" "$temp_file" > "${temp_file}.new" && mv "${temp_file}.new" "$temp_file"
+                fi
+                rm -f "${temp_file}.bak" 2>/dev/null || true
+            fi
+        else
+            # Fall back to old format
+            if command -v gsed >/dev/null 2>&1; then
+                gsed "s/Current version: \*\*v[0-9]\+\.[0-9]\+\.[0-9]\+\*\*/Current version: **${version}**/" README.md > "$temp_file"
+            else
+                sed -E "s/Current version: \*\*v[0-9]+\\.[0-9]+\\.[0-9]+\\*\*/Current version: **${version}**/" README.md > "$temp_file"
+            fi
+        fi
+        
+        # Verify the temp file was created and has content
+        if [ ! -s "$temp_file" ]; then
+            print_error "Failed to create updated README.md - temp file is empty"
+            rm -f "$temp_file"
+            return 1
+        fi
+        
+        mv "$temp_file" README.md
+        
+        # Verify the update was successful
+        if grep -q "\[\\*\\*${version}\\*\\*\]" README.md || grep -q "\*\*${version}\*\*" README.md; then
+            print_info "Successfully updated README.md to ${version}"
+        else
+            print_error "README.md update may have failed - version ${version} not found in file"
+            print_info "Current version line in README.md:"
+            grep "Current version:" README.md || true
+            return 1
+        fi
+    else
+        print_warn "Could not find 'Current version:' line in README.md"
+    fi
+    
+    rm -f "$temp_file"
 }
 
 # Function to cleanup temp files
@@ -195,6 +321,21 @@ main() {
     
     # Copy all files from extracted zip to current directory, overwriting existing files
     cp -rf "${source_dir}"/* .
+    
+    # Update version in README.md (use zip filename from global variable or fetch it)
+    local zip_file="${ZIP_FILENAME}"
+    if [ -z "$zip_file" ]; then
+        # Fallback: try to get zip filename from version directory
+        local version_url="${BASE_URL}/${latest_version}/"
+        zip_file=$(curl -s "${version_url}" | grep -oE 'MeshCore-[^"]+-web\.zip' | head -1)
+    fi
+    if [ -z "$zip_file" ]; then
+        print_warn "Could not determine zip filename, using version only in README"
+        zip_file="MeshCore-${latest_version}-web.zip"
+    fi
+    if ! update_readme_version "${latest_version}" "${zip_file}"; then
+        print_warn "Failed to update README.md with version ${latest_version}, but files were updated successfully"
+    fi
     
     # Cleanup after successful update
     cleanup
