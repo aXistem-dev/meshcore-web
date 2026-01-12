@@ -8,7 +8,7 @@ The MeshCore Companion App - a web-based interface for connecting to and managin
 
 ### Version
 
-Current version: [**v1.36.0**](https://files.liamcottle.net/MeshCore/v1.36.0/MeshCore-v1.36.0+60-c6748b6-web.zip) ([build 60](./version.json))
+Current version: [**v1.37.0**](https://files.liamcottle.net/MeshCore/v1.37.0/MeshCore-v1.37.0+61-f5ee263-web.zip) ([build 61](./version.json))
 
 ## About
 
@@ -105,5 +105,26 @@ Change the port by modifying `docker-compose.yml` or using `-p 3000:80` with `do
 
 ## License
 
-TBD - See the original MeshCore project for license information.
+This project is licensed under the MIT License.
+
+### Original MeshCore Companion App
+
+The MeshCore Companion App is the original application created by [Liam Cottle](https://liamcottle.com). The original app is available for:
+- **Android**: [Google Play Store](https://play.google.com/store/apps/details?id=com.liamcottle.meshcore.android)
+- **iOS**: [App Store](https://apps.apple.com/us/app/meshcore/id6742354151?platform=iphone)
+- **Web**: [MeshCore Web App](https://app.meshcore.nz)
+
+The original MeshCore Companion App source code and this web version are both licensed under the MIT License.
+
+### Official Resources
+
+- **Official Website**: [meshcore.nz](https://meshcore.nz/)
+- **Privacy Policy**: [meshcore.liamcottle.net/privacy-policy.html](https://meshcore.liamcottle.net/privacy-policy.html)
+- **File Downloads**: [files.liamcottle.net/MeshCore](https://files.liamcottle.net/MeshCore)
+
+### Attribution
+
+This repository contains the web build files of the MeshCore Companion App, maintained by aXistem-dev. The original MeshCore Companion App is developed by Liam Cottle.
+
+For license details, see the [LICENSE](./LICENSE) file in this repository.
 

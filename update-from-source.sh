@@ -124,6 +124,18 @@ update_readme_version() {
     
     print_info "Updating version in README.md to ${version}..."
     
+    # Verify README.md exists and has content
+    if [ ! -s "README.md" ]; then
+        print_error "README.md is missing or empty"
+        return 1
+    fi
+    
+    # Check if "Current version:" line exists
+    if ! grep -q "Current version:" README.md; then
+        print_warn "Could not find 'Current version:' line in README.md"
+        return 1
+    fi
+    
     # Get build number from version.json if available
     local build_number=""
     if [ -f "version.json" ]; then
@@ -133,105 +145,45 @@ update_readme_version() {
     # Construct the URL
     local zip_url="https://files.liamcottle.net/MeshCore/${version}/${zip_file}"
     
-    # Use a temporary file for cross-platform compatibility (works on both GNU and BSD sed)
-    local temp_file=$(mktemp)
-    
-    # Update version line (handles both old and new formats)
-    # New format: Current version: [**vX.Y.Z**](url) ([build N](./version.json))
-    # Old format: Current version: **vX.Y.Z**
-    if grep -q "Current version:" README.md; then
-        # Try new format first (with link)
-        if grep -q "Current version: \[**v" README.md; then
-            # Replace version and URL: [**vX.Y.Z**](old_url) -> [**vX.Y.Z**](new_url)
-            # Use a more robust pattern that works with both GNU and BSD sed
-            # Pattern: [**vX.Y.Z**](url) where X.Y.Z is version number
-            # We'll do this in two steps for better reliability:
-            # 1. Replace the version number
-            # 2. Replace the URL
-            
-            # Step 1: Replace version number in [**vX.Y.Z**]
-            if command -v gsed >/dev/null 2>&1; then
-                # Use GNU sed if available (gsed on macOS)
-                gsed "s|\[\\*\\*v[0-9]\\+\\.[0-9]\\+\\.[0-9]\\+\\*\\*\]|[**${version}**]|g" README.md > "$temp_file"
-            else
-                # Use standard sed with extended regex (works on both GNU and BSD sed with -E)
-                # With -E: * needs escaping, + doesn't, . needs escaping
-                sed -E "s|\[\\*\\*v[0-9]+\.[0-9]+\.[0-9]+\\*\\*\]|[**${version}**]|g" README.md > "$temp_file"
-            fi
-            
-            # Step 2: Replace the URL part (everything between parentheses after the version)
-            if command -v gsed >/dev/null 2>&1; then
-                gsed -i "s|(\\(https://files\\.liamcottle\\.net/MeshCore/v[0-9]\\+\\.[0-9]\\+\\.[0-9]\\+/[^)]*\\))|(${zip_url})|g" "$temp_file"
-            else
-                # For BSD sed, we need to use a temp file approach
-                sed -E "s|(\\(https://files\\.liamcottle\\.net/MeshCore/v[0-9]+\\.[0-9]+\\.[0-9]+/[^)]*\\))|(${zip_url})|g" "$temp_file" > "${temp_file}.url" && mv "${temp_file}.url" "$temp_file"
-            fi
-            
-            # Verify the replacement worked
-            if ! grep -q "\[\\*\\*${version}\\*\\*\]" "$temp_file"; then
-                print_error "Failed to update version in README.md - pattern may not have matched"
-                print_info "Current version line in README.md:"
-                grep "Current version:" README.md || true
-                print_info "Attempting alternative simpler pattern..."
-                # Try a simpler pattern as fallback - replace the whole line
-                local old_line=$(grep "Current version:" README.md)
-                local new_line="Current version: [**${version}**](${zip_url})"
-                if [ -n "$build_number" ]; then
-                    new_line="${new_line} ([build ${build_number}](./version.json))"
-                else
-                    # Try to preserve existing build number format if present
-                    if echo "$old_line" | grep -q "build"; then
-                        local existing_build=$(echo "$old_line" | grep -oE '\[build [0-9]+\]' || echo "")
-                        if [ -n "$existing_build" ]; then
-                            new_line="${new_line} (${existing_build}(./version.json))"
-                        fi
-                    fi
-                fi
-                sed "s|.*Current version:.*|${new_line}|" README.md > "$temp_file"
-            fi
-            
-            # If build number is available, update it too
-            if [ -n "$build_number" ]; then
-                if command -v gsed >/dev/null 2>&1; then
-                    gsed -i.bak "s|(\[build [0-9]\\+\](\./version\.json))|([build ${build_number}](./version.json))|g" "$temp_file" 2>/dev/null
-                else
-                    sed -i.bak -E "s|(\[build )[0-9]+(\](\./version\.json))|\1${build_number}\2|g" "$temp_file" 2>/dev/null || \
-                    sed -E "s|(\[build )[0-9]+(\](\./version\.json))|\1${build_number}\2|g" "$temp_file" > "${temp_file}.new" && mv "${temp_file}.new" "$temp_file"
-                fi
-                rm -f "${temp_file}.bak" 2>/dev/null || true
-            fi
-        else
-            # Fall back to old format
-            if command -v gsed >/dev/null 2>&1; then
-                gsed "s/Current version: \*\*v[0-9]\+\.[0-9]\+\.[0-9]\+\*\*/Current version: **${version}**/" README.md > "$temp_file"
-            else
-                sed -E "s/Current version: \*\*v[0-9]+\\.[0-9]+\\.[0-9]+\\*\*/Current version: **${version}**/" README.md > "$temp_file"
-            fi
-        fi
-        
-        # Verify the temp file was created and has content
-        if [ ! -s "$temp_file" ]; then
-            print_error "Failed to create updated README.md - temp file is empty"
-            rm -f "$temp_file"
-            return 1
-        fi
-        
-        mv "$temp_file" README.md
-        
-        # Verify the update was successful
-        if grep -q "\[\\*\\*${version}\\*\\*\]" README.md || grep -q "\*\*${version}\*\*" README.md; then
-            print_info "Successfully updated README.md to ${version}"
-        else
-            print_error "README.md update may have failed - version ${version} not found in file"
-            print_info "Current version line in README.md:"
-            grep "Current version:" README.md || true
-            return 1
-        fi
-    else
-        print_warn "Could not find 'Current version:' line in README.md"
+    # Build the new version line
+    local new_line="Current version: [**${version}**](${zip_url})"
+    if [ -n "$build_number" ]; then
+        new_line="${new_line} ([build ${build_number}](./version.json))"
     fi
     
-    rm -f "$temp_file"
+    # Use a temporary file for cross-platform compatibility
+    local temp_file=$(mktemp)
+    
+    # Replace the entire "Current version:" line with the new version line
+    # This works regardless of the old format (with or without link, with or without build number)
+    if command -v gsed >/dev/null 2>&1; then
+        # Use GNU sed if available (gsed on macOS)
+        gsed "s|.*Current version:.*|${new_line}|" README.md > "$temp_file"
+    else
+        # Use standard sed (works on both GNU and BSD sed)
+        sed "s|.*Current version:.*|${new_line}|" README.md > "$temp_file"
+    fi
+    
+    # Verify the temp file was created and has content
+    if [ ! -s "$temp_file" ]; then
+        print_error "Failed to create updated README.md - temp file is empty"
+        rm -f "$temp_file"
+        return 1
+    fi
+    
+    # Replace the original file
+    mv "$temp_file" README.md
+    
+    # Verify the update was successful - use fgrep for literal string matching
+    if grep -Fq "[**${version}**]" README.md; then
+        print_info "Successfully updated README.md to ${version}"
+        return 0
+    else
+        print_error "README.md update failed - version ${version} not found in file after update"
+        print_info "Current version line in README.md:"
+        grep "Current version:" README.md || true
+        return 1
+    fi
 }
 
 # Function to cleanup temp files
@@ -312,6 +264,7 @@ main() {
     print_info "Source directory confirmed: ${source_dir}"
     
     # Copy new files from extracted zip to local directory (overwrites existing files)
+    # Note: README.md is persistent and not in the zip, so it won't be overwritten
     print_info "Copying files to local directory (overwriting existing files)..."
     if [ ! -d "${source_dir}" ]; then
         print_error "Source directory does not exist: ${source_dir}"
