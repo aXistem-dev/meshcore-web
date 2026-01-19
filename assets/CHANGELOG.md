@@ -1,3 +1,18 @@
+## v1.38.0 - 19/January/2026
+- added realtime noise floor viewer tool
+- added ability to select which contact types are auto added
+- added ability to scope channel messages to local repeater regions
+- added new notification that tells you if contacts list is full
+- added ability to configure repeater owner info via remote management
+- added ability to fetch repeater owner info from guest tools
+- added ability to filter contacts list by sensors
+- added ability to filter by contact type in discover list
+- added button to manage auto add settings from discover screen menu
+- added support for email auto linking
+- removed banner on discover screen saying contacts are auto added
+- removed intel suffix from macos builds as they are universal binaries with intel and apple silicon support
+- fixed bug where macos builds were missing camera and photo library permissions for scanning qr codes
+
 ## v1.37.0 - 04/January/2026
 - added ble, usb and wifi tabs to connect screen
 - added initial support for usb connections on android
