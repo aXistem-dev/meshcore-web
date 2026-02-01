@@ -12,7 +12,7 @@ Current version: [**v1.38.0**](https://files.liamcottle.net/MeshCore/v1.38.0/Mes
 
 ## About
 
-This is the web version of the MeshCore Companion App, built with Flutter. It allows you to connect to MeshCore devices via Bluetooth Low Energy (BLE) or USB Serial directly from your web browser, enabling you to send messages, manage contacts, and interact with the MeshCore mesh network.
+This is the web version of the MeshCore Companion App, built with Flutter. It allows you to connect to MeshCore devices via Bluetooth Low Energy (BLE) or USB Serial directly from your web browser, enabling you to send messages, manage contacts, and interact with the MeshCore mesh network. This repository includes Docker configuration for containerized deployment.
 
 ## Features
 
@@ -21,6 +21,7 @@ This is the web version of the MeshCore Companion App, built with Flutter. It al
 - Manage contacts, channels and remote repeaters
 - View network topology and node information
 - Real-time mesh network interaction
+- Docker deployment for containerized hosting
 
 ## Browser Requirements
 
@@ -103,9 +104,13 @@ docker build -t meshcore-web .
 
 Change the port by modifying `docker-compose.yml` or using `-p 3000:80` with `docker run`.
 
-## License
+## License & Privacy
 
-This project is licensed under the MIT License.
+The MeshCore Companion App is **closed source**, built with Flutter, and is free for anyone to use.
+
+### Privacy Policy
+
+Use of the app is subject to the [Privacy Policy](https://meshcore.liamcottle.net/privacy-policy.html).
 
 ### Original MeshCore Companion App
 
@@ -114,17 +119,12 @@ The MeshCore Companion App is the original application created by [Liam Cottle](
 - **iOS**: [App Store](https://apps.apple.com/us/app/meshcore/id6742354151?platform=iphone)
 - **Web**: [MeshCore Web App](https://app.meshcore.nz)
 
-The original MeshCore Companion App source code and this web version are both licensed under the MIT License.
-
 ### Official Resources
 
 - **Official Website**: [meshcore.nz](https://meshcore.nz/)
-- **Privacy Policy**: [meshcore.liamcottle.net/privacy-policy.html](https://meshcore.liamcottle.net/privacy-policy.html)
 - **File Downloads**: [files.liamcottle.net/MeshCore](https://files.liamcottle.net/MeshCore)
 
 ### Attribution
 
-This repository contains the web build files of the MeshCore Companion App, maintained by aXistem-dev. The original MeshCore Companion App is developed by Liam Cottle.
-
-For license details, see the [LICENSE](./LICENSE) file in this repository.
+This repository contains the web build files of the MeshCore Companion App, maintained by [aXistem](https://github.com/axistem-dev). The original MeshCore Companion App is developed by Liam Cottle ([Liam's GitHub page](https://github.com/liamcottle)). See the [Privacy Policy](https://meshcore.liamcottle.net/privacy-policy.html) for data practices.
 
