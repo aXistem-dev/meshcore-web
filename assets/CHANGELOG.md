@@ -1,3 +1,16 @@
+## v1.39.0 - 08/February/2026
+- added seconds to rxlog timestamps
+- added ability to manage repeater regions via remote management
+- added ability to discover regions from nearby repeaters in select region menu
+- added ability to dismiss repeater region info banner on channel messages screen
+- added ability to change repeater identity keys and choose new prefix via remote management
+- added new received packet errors field to repeater status screen
+- added experimental setting to use companion clock for packet timestamps
+- coverage tool now tells you if there is no elevation data for selected point
+- hashtag symbol is no longer required when adding region scopes
+- tx power is now read as signed int as new firmware will allow negative tx power
+- app will now only process v1 packets in preparation for new v2 packet formats
+
 ## v1.38.0 - 19/January/2026
 - added realtime noise floor viewer tool
 - added ability to select which contact types are auto added
