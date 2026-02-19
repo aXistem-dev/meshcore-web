@@ -1,3 +1,21 @@
+## v1.40.0 - 15/February/2026
+- added support for new companion repeat mode (restricted to specific frequencies)
+- added new messages setting to jump to the oldest unread message when opening a conversation
+- added new messages setting to keep the screen on while viewing a conversation
+- added support for multi-byte path segments in path trace tools (all repeaters must be on firmware v1.11.0+)
+- added dropdown menu button to manual trace tool to auto add return path
+- added red info text to manual trace list if multiple repeaters are known for hop
+- added button to save regions via remote management
+- added info banner to repeater region management when there are unsaved changes
+- added new long press menu to local and internet map screen
+- added 1 second delay after sending message before allowing another message to send
+- connect screen tabs now default to showing last used connection type
+- removed connection options dropdown menu from connect screen (use the tabs instead)
+- repeater region management ui now shows error when failing to fetch list
+- direct messages now have additional random delay between retry attempts
+- fixed bug where popup menus were light themed in dark mode
+- fixed bug where rx log wasn't parsing advert feature flags
+
 ## v1.39.0 - 08/February/2026
 - added seconds to rxlog timestamps
 - added ability to manage repeater regions via remote management
