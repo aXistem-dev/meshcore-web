@@ -1,5 +1,20 @@
+## v1.41.0 - 04/March/2026
+- added support for parsing new multi-byte path hashes in rxlog
+- added support for setting 1, 2 and 3-byte paths in the set contact path tool (requires firmware v1.14.0+)
+- added dropdown to select preferred path hash size in experimental settings page (requires firmware v1.14.0+)
+- added path hash to unknown repeater names
+- added path hash size info to contact details screens
+- added button to repeater neighbours menu to quickly discover nearby neighbours
+- added button to repeater neighbours menu to remove all known neighbours
+- added dropdown menu button to view owner info as guest when editing as admin
+- added support for new max hop limit for auto adding contacts (requires firmware v1.14.0+)
+- added initial chinese, german, japanese and korean language translations
+- added setting to select preferred app language
+- app now allows access to repeater neighbours ui when empty as we now have a discover neighbours button
+- button to delete neighbours is no longer shown when logged in as guest
+
 ## v1.40.0 - 15/February/2026
-- added support for new companion repeat mode (restricted to specific frequencies)
+- added support for new companion repeat mode (requires companion firmware v1.13.0+)
 - added new messages setting to jump to the oldest unread message when opening a conversation
 - added new messages setting to keep the screen on while viewing a conversation
 - added support for multi-byte path segments in path trace tools (all repeaters must be on firmware v1.11.0+)
