@@ -1,3 +1,18 @@
+## v1.42.0 - 22/March/2026
+- added ability to long press ping buttons to use multibyte ping
+- added ability to open line of sight tool from coverage map tool menu
+- added ability to import and export discovered contacts as json from discover screen menu
+- added menu buttons to select all and deselect all contacts while in multi select mode
+- added radio checkbox to select region screen to make it more apparent you must select the region to use
+- added translations for dutch, french, hungarian, italian, polish and slovak
+- antenna coverage tool now automatically fits map to imported json layers
+- spaces are now allowed and automatically trimmed from path field in manual trace tool
+- improved error message when unable to share contact to internet map due to missing advert blob
+- channel messages must now be 10 bytes shorter if a region scope is applied
+- fixed bug where contacts full notification would show even when preference was turned off
+- fixed bug where adding contacts from discover wouldn't copy over the last advert timestamp
+- fixed bug where it wasn't possible to swipe back to exit discover screen on ios
+
 ## v1.41.0 - 04/March/2026
 - added support for parsing new multi-byte path hashes in rxlog
 - added support for setting 1, 2 and 3-byte paths in the set contact path tool (requires firmware v1.14.0+)
