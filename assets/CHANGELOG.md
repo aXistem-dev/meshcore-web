@@ -1,3 +1,24 @@
+## v1.43.0 - 18/April/2026
+- added ability to export app sqlite database
+- added ability to search dms and channel messages
+- added button to quick scroll to bottom of conversation
+- added ability to filter discover list and discover map by advert path hash size
+- added checkbox to path viewer screens to use discover list for resolving known nodes
+- added ability to configure default region for companion/repeater firmware v1.15.0+
+- added confirmation dialog before denying flood for unscoped wildcard region
+- added new message setting to show/hide path hash size under channel messages
+- added czech, portuguese, russian and ukrainian translations
+- accessing discover contacts screen is now allowed when node is disconnected
+- regions ui in channels now shows if a default region is in use
+- improved performance of importing discover list from json file
+- improved user experience of companion repeat mode by allowing selection of frequency when enabling
+- menu buttons to select all contacts now only selects all from search results
+- adding repeater region now detects if region has flood enabled by default in v1.15.0+ repeater firmware
+- fixed bug where success dialogs were shown even if user cancelled file save
+- fixed bug where clicking outside of ping warning dialog on android would not finish loading state
+- fixed bug where region management would break if region name was "unknown"
+- fixed bug where add region screen auto capitalized text input
+
 ## v1.42.0 - 22/March/2026
 - added ability to long press ping buttons to use multibyte ping
 - added ability to open line of sight tool from coverage map tool menu
