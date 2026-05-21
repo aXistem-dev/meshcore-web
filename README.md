@@ -1,4 +1,4 @@
-# MeshCore Web App
+# Dockerized MeshCore Web App
 
 <div align="center">
   <img src="logo.svg" alt="MeshCore Logo" width="200">
@@ -12,7 +12,10 @@ Current version: [**v1.44.0**](https://files.liamcottle.net/MeshCore/v1.44.0/Mes
 
 ## About
 
-This is the web version of the MeshCore Companion App, built with Flutter. It allows you to connect to MeshCore devices via Bluetooth Low Energy (BLE) or USB Serial directly from your web browser, enabling you to send messages, manage contacts, and interact with the MeshCore mesh network. This repository includes Docker configuration for containerized deployment.
+This is the web version of the MeshCore Companion App, built with Flutter. It allows you to connect to MeshCore devices via Bluetooth Low Energy (BLE) or USB Serial directly from your web browser, enabling you to send messages, manage contacts, and interact with the MeshCore mesh network.
+
+**To run it:** pull the pre-built Docker image `ghcr.io/axistem-dev/meshcore-web:latest`
+This repo mainly publishes that image, hosts the static web build, and documents maintainer workflows.
 
 ## Features
 
@@ -27,15 +30,67 @@ This is the web version of the MeshCore Companion App, built with Flutter. It al
 
 Chrome/Edge (desktop or Android) via HTTPS or localhost access required for functionality.
 
-## Original Files
+## MeshCore Companion App & Downloads
 
-Original app files are available at [https://files.liamcottle.net/MeshCore](https://files.liamcottle.net/MeshCore), including:
-- **Web builds** (this repository)
-- **macOS builds**
-- **Android builds**
-- **Windows builds**
+The MeshCore Companion App is the original application created by [Liam Cottle](https://liamcottle.com).
+
+**App stores & hosted web:**
+- **Android**: [Google Play Store](https://play.google.com/store/apps/details?id=com.liamcottle.meshcore.android)
+- **iOS**: [App Store](https://apps.apple.com/us/app/meshcore/id6742354151?platform=iphone)
+- **Web**: [MeshCore Web App](https://app.meshcore.io) (also this repo’s [Docker image](#docker-deployment))
+
+**Desktop & web archives** on [files.liamcottle.net/MeshCore](https://files.liamcottle.net/MeshCore), per version:
+- **Web** builds (this repository)
+- **macOS**
+- **Windows**
+- **Linux** (x86_64 `.zip` and `.AppImage`)
+
+## Docker Deployment
+
+Run the MeshCore web app in a container (nginx on Alpine). **Use the published image**:
+
+`ghcr.io/axistem-dev/meshcore-web:latest`
+
+### Quick Start (recommended)
+
+Pull and run the image directly (works on any machine with Docker):
+
+```bash
+docker run -d \
+  -p 8080:80 \
+  --restart unless-stopped \
+  --name meshcore-web \
+  ghcr.io/axistem-dev/meshcore-web:latest
+```
+
+Open http://localhost:8080
+
+To use another port, change `-p` (e.g. `-p 3000:80` for http://localhost:3000).
+
+### Docker Compose (optional)
+
+Clone this repo only if you want the included `docker-compose.yml` (same image, plus health check and restart policy):
+
+```bash
+git clone https://github.com/aXistem-dev/meshcore-web.git
+cd meshcore-web
+docker compose up -d
+```
+
+### Building locally (optional)
+
+Only if you need a custom image built from this repository’s files:
+
+```bash
+git clone https://github.com/aXistem-dev/meshcore-web.git
+cd meshcore-web
+docker build -t meshcore-web .
+docker run -d -p 8080:80 --name meshcore-web meshcore-web
+```
 
 ## Updating from Source
+
+For maintainers refreshing this repository from upstream web builds.
 
 ### Automated Update Scripts
 
@@ -48,7 +103,7 @@ For manual updates, see the Manual Update Workflow section below.
 
 When updating to a new version manually:
 
-1. **Download the new version** from the [MeshCore releases](https://files.liamcottle.net/MeshCore) (e.g., `MeshCore-v1.36.0+60-c6748b6-web.zip`)
+1. **Download the new version** from the [MeshCore releases](https://files.liamcottle.net/MeshCore) (e.g., `MeshCore-v1.44.0+70-86c0436-web.zip`)
 
 2. **Extract and replace files** in the repository:
    - Extract the zip file
@@ -75,35 +130,6 @@ When updating to a new version manually:
    git log -1 --stat
    ```
 
-## Docker Deployment
-
-Docker configuration to run the MeshCore webapp in a container using nginx on a lightweight Alpine Linux base image.
-
-Pre-built Docker images are available from GitHub Container Registry: `ghcr.io/axistem-dev/meshcore-web:latest`
-
-### Quick Start
-
-```bash
-# Using Docker Compose (recommended)
-docker compose up -d
-
-# Or using Docker directly
-docker run -d -p 8080:80 --name meshcore-web ghcr.io/axistem-dev/meshcore-web:latest
-```
-
-The app will be available at http://localhost:8080
-
-### Building the docker image yourself
-
-```bash
-# Build the image
-docker build -t meshcore-web .
-```
-
-### Configuration
-
-Change the port by modifying `docker-compose.yml` or using `-p 3000:80` with `docker run`.
-
 ## License & Privacy
 
 The MeshCore Companion App is **closed source**, built with Flutter, and is free for anyone to use.
@@ -112,17 +138,9 @@ The MeshCore Companion App is **closed source**, built with Flutter, and is free
 
 Use of the app is subject to the [Privacy Policy](https://meshcore.liamcottle.net/privacy-policy.html).
 
-### Original MeshCore Companion App
-
-The MeshCore Companion App is the original application created by [Liam Cottle](https://liamcottle.com). The original app is available for:
-- **Android**: [Google Play Store](https://play.google.com/store/apps/details?id=com.liamcottle.meshcore.android)
-- **iOS**: [App Store](https://apps.apple.com/us/app/meshcore/id6742354151?platform=iphone)
-- **Web**: [MeshCore Web App](https://app.meshcore.nz)
-
 ### Official Resources
 
-- **Official Website**: [meshcore.nz](https://meshcore.nz/)
-- **File Downloads**: [files.liamcottle.net/MeshCore](https://files.liamcottle.net/MeshCore)
+- **Official Website**: [meshcore.io](https://meshcore.io/)
 
 ### Attribution
 
