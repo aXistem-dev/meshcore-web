@@ -1,0 +1,49 @@
+name: Update from source
+
+on:
+  schedule:
+    # Daily at 06:00 UTC
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: meshcore-web-update-from-source
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    outputs:
+      updated: ${{ steps.update.outputs.updated }}
+      version: ${{ steps.update.outputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Check for new upstream version and update
+        id: update
+        run: |
+          chmod +x ./update-from-source-and-push.sh
+          ./update-from-source-and-push.sh
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ "${{ steps.update.outputs.updated }}" = "true" ]; then
+            echo "### Updated to ${{ steps.update.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"
+            echo "Pushed to \`main\` and \`${{ steps.update.outputs.version }}\`. Docker publish runs via the **Build and Publish Docker Image** workflow." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### No update needed" >> "$GITHUB_STEP_SUMMARY"
+            echo "Latest upstream version is already in this repository (${{ steps.update.outputs.version }})." >> "$GITHUB_STEP_SUMMARY"
+          fi

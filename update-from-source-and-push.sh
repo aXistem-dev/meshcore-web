@@ -38,6 +38,22 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1" >&2
 }
 
+# GitHub Actions job outputs (see .github/workflows/update-from-source.yml)
+github_output() {
+    local name=$1
+    local value=$2
+    if [ -n "${GITHUB_OUTPUT:-}" ]; then
+        echo "${name}=${value}" >> "${GITHUB_OUTPUT}"
+    fi
+}
+
+git_push_enabled() {
+    case "${SKIP_GIT_PUSH:-}" in
+        1|true|yes) return 1 ;;
+        *) return 0 ;;
+    esac
+}
+
 # Function to get all version directories from the server
 get_available_versions() {
     print_info "Fetching available versions from ${BASE_URL}/..."
@@ -323,26 +339,26 @@ update_repository() {
         git commit -m "Update to ${version} from source files"
     fi
     
-    # Push version branch to remote
-    print_info "Pushing to origin/${version}..."
-    git push origin "${version}" || { print_error "Failed to push to origin/${version}"; return 1; }
-    
-    print_info "Successfully created and pushed ${version} branch!"
-    
-    # Now update main branch by merging the version branch (this keeps them in sync)
-    print_info "Updating main branch by merging ${version} branch..."
-    git checkout main || { print_error "Failed to checkout main branch"; return 1; }
-    
-    # Reset main to exactly match the version branch (this avoids the "1 ahead, 1 behind" issue)
-    # This ensures main and version branch have the exact same commit history and content
-    print_info "Resetting main to match ${version} branch exactly..."
-    git reset --hard "${version}" || { print_error "Failed to reset main to ${version}"; return 1; }
-    
-    # Push main branch (force push needed since we reset)
-    print_info "Pushing to origin/main (force push required)..."
-    git push origin main --force-with-lease || { print_error "Failed to push to origin/main"; return 1; }
-    
-    print_info "Successfully updated main branch to ${version}!"
+    if git_push_enabled; then
+        print_info "Pushing to origin/${version}..."
+        git push origin "${version}" || { print_error "Failed to push to origin/${version}"; return 1; }
+
+        print_info "Successfully created and pushed ${version} branch!"
+
+        print_info "Updating main branch to match ${version}..."
+        git checkout main || { print_error "Failed to checkout main branch"; return 1; }
+
+        print_info "Resetting main to match ${version} branch exactly..."
+        git reset --hard "${version}" || { print_error "Failed to reset main to ${version}"; return 1; }
+
+        print_info "Pushing to origin/main (force-with-lease)..."
+        git push origin main --force-with-lease || { print_error "Failed to push to origin/main"; return 1; }
+
+        print_info "Successfully updated main branch to ${version}!"
+    else
+        print_warn "SKIP_GIT_PUSH is set — committed locally on ${version}, not pushing to origin"
+        git checkout main || true
+    fi
 }
 
 # Function to cleanup temp files
@@ -398,6 +414,8 @@ main() {
     # Check if we already have the latest version
     if branch_exists "$latest_version"; then
         print_info "Latest version ${latest_version} is already in the repository. Nothing to update."
+        github_output "updated" "false"
+        github_output "version" "${latest_version}"
         exit 0
     fi
     
@@ -439,6 +457,8 @@ main() {
     cleanup
     
     print_info "Update complete! Version ${version_to_process} has been added to both ${version_to_process} branch and main branch."
+    github_output "updated" "true"
+    github_output "version" "${version_to_process}"
 }
 
 # Run main function

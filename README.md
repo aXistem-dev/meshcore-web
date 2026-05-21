@@ -94,8 +94,8 @@ For maintainers refreshing this repository from upstream web builds.
 
 ### Automated Update Scripts
 
-- **`./update-from-source.sh`** - Downloads and updates files locally only (does not update README.md or commit changes)
-- **`./update-from-source-and-push.sh`** - Complete automated workflow: downloads, updates README.md, commits, and pushes to this repository
+- **`./update-from-source.sh`** — Downloads and updates files locally only (does not commit changes)
+- **`./update-from-source-and-push.sh`** — Downloads, updates README.md, commits, and pushes to this repository
 
 For manual updates, see the Manual Update Workflow section below.
 
