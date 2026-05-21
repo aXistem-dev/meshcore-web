@@ -1,3 +1,21 @@
+## v1.44.0 - 20/May/2026
+- added support for usb connections on windows, macos and linux
+- added checkbox to allow auto reconnect on wifi connections
+- added ability to send unscoped channel messages when default scope configured (firmware v1.16.0+)
+- added auto link support in chat messages for latitude,longitude with at least 3 decimals
+- added snr signal strength support for sf5 and sf6
+- added language translations for spanish and romanian
+- redesigned message composer ui with ability to share contacts and positions
+- typing @username in channel messages now auto adds a space afterwards
+- repeater neighbours list can now resolve names from discovered contacts database
+- repeater neighbours can now show on map tab even if the repeater you're logged into has no position
+- user is no longer forced to change frequency if it's already allowed when turning on repeat mode
+- draft messages are now saved by default this can be turned off in message settings
+- improved pairing flow for bluetooth companions on windows
+- fixed bug where some commands would not time out
+- fixed bug where connect screen would not close when node auto reconnected
+- fixed bug where deleting an outgoing message would keep retrying even if delivered
+
 ## v1.43.0 - 18/April/2026
 - added ability to export app sqlite database
 - added ability to search dms and channel messages
