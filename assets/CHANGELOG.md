@@ -1,3 +1,16 @@
+## v1.45.0 - 14/June/2026
+- added new onboarding ui for initial device setup
+- added support for discovering regions from non contacts in firmware v1.16.0+
+- added button to add contact when contacts list is empty
+- fixed bug where dialog crashed app if both dialog buttons pressed at same time
+- fixed bug where channel wouldn't load if firmware had multiple channels with the same secret
+- fixed bug where neighbours map didn't include self repeater when fitting map markers
+- fixed bug where adding current position to message didn't actually fetch updated position
+- fixed bug where filtering discover list by path hash size ignored contact type filter
+- fixed bug where android foreground service could cause app crash
+- updated icon for channels tab from signal to hashtag
+- updated translations
+
 ## v1.44.0 - 20/May/2026
 - added support for usb connections on windows, macos and linux
 - added checkbox to allow auto reconnect on wifi connections
