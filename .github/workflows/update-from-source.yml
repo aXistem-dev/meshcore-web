@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write
 
     outputs:
       updated: ${{ steps.update.outputs.updated }}
@@ -37,12 +38,21 @@ jobs:
           chmod +x ./update-from-source-and-push.sh
           ./update-from-source-and-push.sh
 
+      - name: Trigger Docker image build
+        if: steps.update.outputs.updated == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Pushes from GITHUB_TOKEN do not trigger other workflows on push.
+          # Explicitly run the Docker publish workflow after a version bump.
+          gh workflow run "Build and Publish Docker Image" --repo "${GITHUB_REPOSITORY}" --ref main
+
       - name: Summary
         if: always()
         run: |
           if [ "${{ steps.update.outputs.updated }}" = "true" ]; then
             echo "### Updated to ${{ steps.update.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"
-            echo "Pushed to \`main\` and \`${{ steps.update.outputs.version }}\`. Docker publish runs via the **Build and Publish Docker Image** workflow." >> "$GITHUB_STEP_SUMMARY"
+            echo "Pushed to \`main\` and \`${{ steps.update.outputs.version }}\`. Triggered **Build and Publish Docker Image**." >> "$GITHUB_STEP_SUMMARY"
           else
             echo "### No update needed" >> "$GITHUB_STEP_SUMMARY"
             echo "Latest upstream version is already in this repository (${{ steps.update.outputs.version }})." >> "$GITHUB_STEP_SUMMARY"
