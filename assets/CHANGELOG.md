@@ -1,3 +1,16 @@
+## v1.46.0 - 30/June/2026
+- added new channel settings screen
+- added catalan and swedish translations
+- added ability to auto delete channel messages after selected retention period
+- added ability to select sensors when sharing a contact from message composer
+- added new message setting checkbox to auto focus message composer input field
+- added validation check to latitude/longitude before showing contacts on local map
+- significantly improved background bluetooth connections on ios by fixing bug with ble state restoration
+- moved menu items to rename channel, view participants and blocked users to new channel settings screen
+- fixed bug on iPadOS 26.1+ where dropdown menu closes instantly if tapped near status bar
+- increased border radius on popup menus from 2px to 12px
+- updated translations
+
 ## v1.45.0 - 14/June/2026
 - added new onboarding ui for initial device setup
 - added support for discovering regions from non contacts in firmware v1.16.0+
