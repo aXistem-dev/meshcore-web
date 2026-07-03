@@ -18,6 +18,7 @@ BASE_URL="https://files.liamcottle.net/MeshCore"
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMP_DIR="/tmp/meshcore-web-update"
 ZIP_FILENAME=""  # Global variable to store the zip filename
+EXTRACTED_WEB_DIR=""  # Set by download_and_extract on success
 
 # Colors for output
 RED='\033[0;31m'
@@ -57,12 +58,40 @@ git_push_enabled() {
 # Function to get all version directories from the server
 get_available_versions() {
     print_info "Fetching available versions from ${BASE_URL}/..."
-    curl -s "${BASE_URL}/" | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+/' | sed 's/\///' | sort -V
+    curl -s "${BASE_URL}/" | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+/' | sed 's/\///' | sort -Vu
 }
 
-# Function to get the latest version
-get_latest_version() {
-    get_available_versions | tail -1
+# Function to find the web.zip filename for a version (empty if not published yet)
+find_web_zip() {
+    local version=$1
+    curl -s "${BASE_URL}/${version}/" | grep -oE 'MeshCore-[^"]+-web\.zip' | head -1
+}
+
+# Function to get the latest version that has a downloadable web.zip
+get_latest_ready_version() {
+    local versions=$1
+    local server_latest
+    server_latest=$(echo "$versions" | tail -1)
+
+    if [ -z "$server_latest" ]; then
+        return 1
+    fi
+
+    if [ -n "$(find_web_zip "${server_latest}")" ]; then
+        echo "${server_latest}"
+        return 0
+    fi
+
+    # New version folder may appear before web.zip is uploaded — walk backwards
+    local version
+    for version in $(echo "$versions" | sort -rV); do
+        if [ -n "$(find_web_zip "${version}")" ]; then
+            echo "${version}"
+            return 0
+        fi
+    done
+
+    return 1
 }
 
 # Function to get all existing version branches (local and remote)
@@ -83,8 +112,11 @@ download_and_extract() {
     
     print_info "Fetching file list from ${version_url}..."
     
+    EXTRACTED_WEB_DIR=""
+
     # Find the web.zip file
-    local zip_file=$(curl -s "${version_url}" | grep -oE 'MeshCore-[^"]+-web\.zip' | head -1)
+    local zip_file
+    zip_file=$(find_web_zip "${version}")
     
     if [ -z "$zip_file" ]; then
         print_error "Could not find web.zip file in ${version_url}"
@@ -120,8 +152,8 @@ download_and_extract() {
     
     # Find the web directory inside
     if [ -d "extracted/web" ]; then
-        print_info "Found web directory in zip file" >&2
-        echo "${TEMP_DIR}/extracted/web"
+        EXTRACTED_WEB_DIR="${TEMP_DIR}/extracted/web"
+        print_info "Found web directory in zip file"
         return 0
     else
         print_error "Could not find 'web' directory in extracted zip file" >&2
@@ -391,15 +423,20 @@ main() {
         exit 1
     fi
     
-    # Get the latest version from server (not the latest we don't have, but the actual latest)
-    local latest_version=$(echo "$available_versions" | sort -V | tail -1)
-    
-    if [ -z "$latest_version" ]; then
-        print_error "Could not determine latest version from server"
+    # Latest directory on server may exist before the web.zip is uploaded
+    local server_latest_version
+    server_latest_version=$(echo "$available_versions" | tail -1)
+    local latest_version
+    if ! latest_version=$(get_latest_ready_version "$available_versions"); then
+        print_error "Could not find any version with a downloadable web.zip on server"
         exit 1
     fi
-    
-    print_info "Latest version available on server: ${latest_version}"
+
+    if [ -n "$server_latest_version" ] && [ "$server_latest_version" != "$latest_version" ]; then
+        print_warn "Server lists ${server_latest_version} but its web.zip is not available yet; latest ready version is ${latest_version}"
+    fi
+
+    print_info "Latest ready version on server: ${latest_version}"
     
     # Get existing version branches
     local existing_branches=$(get_existing_branches)
@@ -425,19 +462,16 @@ main() {
     
     # Download and extract (disable cleanup during this process)
     KEEP_TEMP=1
-    local source_dir=""
-    # Capture only stdout (the path), let stderr (info messages) go to console
-    if ! source_dir=$(download_and_extract "${version_to_process}" 2>/dev/null); then
+    if ! download_and_extract "${version_to_process}"; then
         print_error "Failed to download and extract version ${version_to_process}"
         KEEP_TEMP=""
         cleanup
         exit 1
     fi
     KEEP_TEMP=""
-    
-    # Filter out any info messages that might have been captured
-    source_dir=$(echo "$source_dir" | grep -E "^/tmp/meshcore-web-update" | head -1)
-    
+
+    local source_dir="${EXTRACTED_WEB_DIR}"
+
     if [ -z "$source_dir" ] || [ ! -d "$source_dir" ]; then
         print_error "Source directory invalid: '${source_dir}'"
         cleanup
