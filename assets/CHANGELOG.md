@@ -1,3 +1,16 @@
+## v1.47.0 - 10/July/2026
+- added new map tab to path viewer screen
+- added path hash size to path viewer subtitle
+- added ability to share channels from message composer
+- added ability to click meshcore:// urls in external apps
+- added ability to scan meshcore qr codes in system camera app
+- added ability to attach region scopes to qr code when sharing channel
+- added ability to fetch owner info and request name from repeaters in nearby discovery tool
+- added ability to select lora bandwidths supported by 2.4GHz radios
+- tapping nearby discovered node can now open discovered contact screen if available
+- moved message sender name inside message bubble to help with dark coloured names in dark mode
+- failed to sync messages error popup has been removed
+
 ## v1.46.0 - 30/June/2026
 - added new channel settings screen
 - added catalan and swedish translations
