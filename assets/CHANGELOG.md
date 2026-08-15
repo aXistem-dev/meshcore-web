@@ -1,3 +1,25 @@
+## v1.48.0 - 15/August/2026
+- added ability to view regions of discovered repeaters
+- added ability to resend previous cli commands from long press menu
+- added button to resume existing session instead of requiring log in to repeater every time
+- added support for push notifications on web, please enable permission in browser settings
+- added menu item to copy contacts and channels as link to clipboard from share screen
+- added ability to show/hide specific telemetry channel sections
+- all telemetry is now shown on one page and the telemetry channel dropdown has been removed
+- power telemetry now also shows power calculated from voltage and current if it differs from power telemetry value
+- pressing back button when viewing channels or map tab on main screen now goes to contacts tab
+- config export file now includes channel scope and scope is applied when importing config file
+- disabled autocorrect for command line input field
+- map marker labels now abbreviate large group counts
+- improved performance of internet map loading
+- updated from flutter v3.29.0 to v3.44.9
+- updated internal libraries to comply with new apple/google policies
+- unfortunately due to apple requirements ios 15+ and macos 12+ is now required
+- unfortunately due to google requirements android 7+ is now required
+- fixed bug where copied to clipboard text wasn't using translated string
+- fixed bug where add contact button in discover screen wasn't using translated string
+- fixed bug where scrolling at end of antenna coverage layers list would zoom map on web
+
 ## v1.47.0 - 10/July/2026
 - added new map tab to path viewer screen
 - added path hash size to path viewer subtitle
