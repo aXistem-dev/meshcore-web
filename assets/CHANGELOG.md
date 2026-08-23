@@ -1,3 +1,17 @@
+## v1.49.0 - 22/August/2026
+- added ability to trace current path to and from repeater
+- added new message setting to show region names for received channel messages
+- added new network settings screen to repeater remote management to configure path hash size and default region scope
+- added icon on channel list item to show if notifications are turned off
+- notification badge is now grey instead of red for channels that have notifications muted
+- unread indicator on contacts and channels tabs now shows unread conversations count
+- moved path hash size and default region scope settings from experimental settings to main settings screen
+- radio presets now include a default path hash size and will be applied when switching presets
+- path hash size can now be configured in advanced settings during onboard flow
+- disabled autocorrect for region name field
+- fixed bug where unread messages indicator sometimes wouldn't show if unread contact was off screen
+- fixed bug in map where app could freeze when zooming quickly
+
 ## v1.48.0 - 15/August/2026
 - added ability to view regions of discovered repeaters
 - added ability to resend previous cli commands from long press menu
