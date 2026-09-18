@@ -320,11 +320,13 @@ update_repository() {
     git pull origin main || { print_error "Failed to pull from origin/main"; return 1; }
     git checkout -b "${version}" || { print_error "Failed to create new branch ${version}"; return 1; }
     
-    # Remove all existing files except .git and .github
-    print_info "Cleaning repository (keeping .git and .github)..."
+    # Remove all existing files except .git / .github / .forgejo / .gitea
+    print_info "Cleaning repository (keeping .git, .github, .forgejo, .gitea)..."
     find . -mindepth 1 -maxdepth 1 \
         ! -name '.git' \
         ! -name '.github' \
+        ! -name '.forgejo' \
+        ! -name '.gitea' \
         -exec rm -rf {} +
     
     # Copy new files from extracted zip
