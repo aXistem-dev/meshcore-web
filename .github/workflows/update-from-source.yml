@@ -29,8 +29,14 @@ jobs:
 
       - name: Configure git
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Identity must match the host so commits look local to that forge.
+          if [ "${{ github.server_url }}" = "https://github.com" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          else
+            git config user.name "forgejo-actions[bot]"
+            git config user.email "forgejo-actions[bot]@users.noreply.${{ github.repository_owner }}.local"
+          fi
 
       - name: Check for new upstream version and update
         id: update
@@ -43,9 +49,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Pushes from GITHUB_TOKEN do not trigger other workflows on push.
-          # Explicitly run the Docker publish workflow after a version bump.
-          gh workflow run "Build and Publish Docker Image" --repo "${GITHUB_REPOSITORY}" --ref main
+          # Token pushes do not fire push-triggered workflows. Dispatch explicitly.
+          if [ "${{ github.server_url }}" = "https://github.com" ]; then
+            gh workflow run "Build and Publish Docker Image" \
+              --repo "${GITHUB_REPOSITORY}" --ref main
+          else
+            # Forgejo / Gitea Actions dispatch (same shape as the GitHub API).
+            curl -fsS -X POST \
+              -H "Authorization: token ${GH_TOKEN}" \
+              -H "Content-Type: application/json" \
+              "${{ github.api_url }}/repos/${{ github.repository }}/actions/workflows/docker-publish.yml/dispatches" \
+              -d '{"ref":"main"}'
+          fi
 
       - name: Summary
         if: always()
