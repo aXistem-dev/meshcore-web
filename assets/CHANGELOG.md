@@ -1,3 +1,24 @@
+## v1.50.0 - 25/September/2026
+- added command line button to companion contact details to remote manage other companion nodes
+- added remote cli permission to contact permissions screen, to allow other nodes to remote manage your node
+- added support for local companion command line in settings screen, requires companion firmware v1.18.0+
+- added ability to import and export region scopes in companion config json
+- added new wifi settings screen to configure ssid and password
+- added connection type being used to bottom of settings screen
+- added button to cluster repeater markers on path trace map tool
+- region scopes are now shown in channels list if configured
+- channel message retention duration is now included in companion config export
+- long pressing ping button now configures the default path hash size for all future pings
+- tracing 3byte paths is not supported by protocol, app now converts to 2byte when tracing repeater path
+- ping failed error message now shows repeater name and prefix
+- qr codes are now always black on a white background
+- fixed bug where notifications were shown for cli data received from other companions
+- fixed bug where new line key was not working on some android devices
+- fixed bug where app would crash on graphene os after viewing repeater login
+- fixed bug where contact and channel search bars were not cleared when node reconnected
+- fixed bug where some esp32 devices would timeout fetching device info when connecting via usb on windows
+- updated wording of unlocking remote management on all devices to be explicit about the platform
+
 ## v1.49.0 - 22/August/2026
 - added ability to trace current path to and from repeater
 - added new message setting to show region names for received channel messages
