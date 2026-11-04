@@ -1,3 +1,20 @@
+## v1.51.0 - 04/November/2026
+- added new quick messages feature to message composer menu (aka canned messages)
+- added new button to map screens to jump to your current gps position (uses phone gps)
+- added new buzzer alerts checkbox to notification settings screen to turn companion buzzer on and off (requires companion firmware v1.19.0+)
+- added new message settings to configure how many direct and flood attempts when sending direct messages
+- added info banner to make it more apparent that sending contact messages requires other person to add you as contact first
+- added ability to cancel retries when sending an outbound contact message
+- added button to forget last advert timestamp from contact details screen
+- added ability to long press discover map to update self position and copy coordinates
+- added map marker on discover map for own companion node position
+- added new popup ui to add contacts via deep links
+- contact messages now attempt 4 direct and 4 flood instead of 4 direct and 1 flood
+- hop count and path hash sizes are now shown under channel messages by default
+- messages are now marked as failed if trying to resend when disconnected
+- fixed bug where trying to resend message while disconnected would delete the message
+- macos 12+ is now required
+
 ## v1.50.0 - 25/September/2026
 - added command line button to companion contact details to remote manage other companion nodes
 - added remote cli permission to contact permissions screen, to allow other nodes to remote manage your node
