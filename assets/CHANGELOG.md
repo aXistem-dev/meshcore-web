@@ -1,3 +1,8 @@
+## v1.51.1 - 09/November/2026
+- fixed a bug where contacts with a 3-byte path would always reset to flood
+- fixed a bug where setting dm flood attempts to zero would show error message when a contact had no path
+- macos builds are now codesigned and notarized
+
 ## v1.51.0 - 04/November/2026
 - added new quick messages feature to message composer menu (aka canned messages)
 - added new button to map screens to jump to your current gps position (uses phone gps)
